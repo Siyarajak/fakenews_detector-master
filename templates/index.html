@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fake News Detector</title>
+
+    <!-- Correct CSS path -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <div class="navbar">
+        📰 Fake News Detector
+    </div>
+
+    <!-- Overlay -->
+    <div class="overlay"></div>
+
+    <!-- Main Card -->
+    <div class="main-card">
+        <h1>Verify News Instantly</h1>
+        <p class="subtext">
+            Paste any news article below to check whether it is real or fake.
+        </p>
+
+        <textarea id="newsInput"
+            placeholder="Paste the news article or claim here..."></textarea>
+
+        <button onclick="checkNews()">Check News</button>
+
+        <div id="result"></div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        async function checkNews() {
+            const text = document.getElementById("newsInput").value.trim();
+            const resultDiv = document.getElementById("result");
+
+            if (!text) {
+                resultDiv.innerHTML = "⚠️ Please enter news text!";
+                return;
+            }
+
+            resultDiv.innerHTML = "⏳ Checking...";
+
+            try {
+                const response = await fetch("/api/check", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ news: text })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    resultDiv.innerHTML = "❌ " + data.error;
+                } else {
+                    if (data.verdict === "FAKE") {
+                        resultDiv.innerHTML =
+                            `<span style="color:red;">❌ FAKE NEWS</span>`;
+                    } else if (data.verdict === "REAL") {
+                        resultDiv.innerHTML =
+                            `<span style="color:lime;">✅ REAL NEWS</span>`;
+                    } else {
+                        resultDiv.innerHTML = data.verdict;
+                    }
+                }
+            } catch (error) {
+                resultDiv.innerHTML = "❌ Server Error!";
+            }
+        }
+    </script>
+
+</body>
+</html>
