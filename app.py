@@ -25,4 +25,5 @@ def check_news():
     return jsonify({"verdict": verdict})
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
+
